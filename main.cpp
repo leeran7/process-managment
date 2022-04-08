@@ -18,6 +18,6 @@ int main(int argc, const char * argv[]) {
     Manager* manager = new Manager(processCount);
     manager->FCFS();
     manager->Priority();
-    // manager->SJN();
+    manager->SJN();
     return 0;
 }

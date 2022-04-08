@@ -23,6 +23,7 @@ public:
     int completedIndex;
     int arrivalTime;
     int executionTime;
+    int initialExecutionTime;
     void init(int id, int arrival, int pr, int exec){
         this->priority = pr;
         this->pid = id;
@@ -32,12 +33,14 @@ public:
         this->tat = 0;
         this->completedIndex = 0;
         this->start = -1;
+        this->initialExecutionTime = exec;
     }
     void reset(){
         this->tat = 0;
         this->completion = 0;
         this->completedIndex = 0;
         this->start = -1;
+        this->executionTime = this->initialExecutionTime;
     }
     Process operator=(const Process& p){
         this->priority = p.priority;
@@ -131,7 +134,7 @@ public:
         }
         cout << "Average TAT: " << totalTAT / (double)this->processCount << endl;
     }
-    
+
     void getReadyProcesses(int currentTime, int& count, int& highest){
         count = 0;
         highest = 999;
@@ -162,12 +165,27 @@ public:
         }
     }
 
+    void getShortestReadyProcess(int time, int& idx, int& shortest){
+        for(int i = 0; i < this->processCount; i++){
+            if(this->processes[i].executionTime > 0 && this->processes[i].arrivalTime <= time && this->processes[i].completedIndex == 0){
+                if(this->processes[i].executionTime < shortest){
+                    shortest = this->processes[i].executionTime;
+                    idx = i;
+                }
+            }
+        }
+    }
+
     void Priority(){
+        cout << endl;
+        cout << setw(20) << "Priority Scheduling" << endl;
         int time = 0;
         int highest = 0;
         int idx = 1;
-        bool completed = !isCompleted();
-        while(completed){
+        string order = "";
+        bool running = !isCompleted();
+        int currentProcess = 0;
+        while(running){
             int count = 0;
             getReadyProcesses(time, count, highest);
             if(count > 0){
@@ -175,10 +193,14 @@ public:
                 for(int i = 0; i < this->processCount; i++){
                     if(this->processes[i].priority == highest && !ran && this->processes[i].arrivalTime <= time && this->processes[i].completedIndex == 0){
                         if(this->processes[i].executionTime > 0){
+                            if(i != currentProcess){
+                                order = order + "P" + to_string(this->processes[i].pid) + "->";
+                            }
                             if(this->processes[i].start == -1){
                                 this->processes[i].start = time;
                             }
                             this->processes[i].executionTime--;
+                            currentProcess = i;
                             if(this->processes[i].executionTime == 0){
                                 this->processes[i].completion = time + 1;
                                 this->processes[i].completedIndex = idx;
@@ -197,24 +219,60 @@ public:
         calculateTAT();
         cout << *this;
         getAverageTAT();
+        cout << "Order: " << order << endl;
         resetMemory();
     }
 
     void SJN(){
+        cout << endl;
+        cout << setw(20) << "Shortest Job Next" << endl;
+        int time = 0;
+        int idx = 0;
+        bool completed = !isCompleted();
+        int initialShortest = 999;
+        string order = "";
+        while(completed){
+            int shortest = initialShortest;
+            getShortestReadyProcess(time, idx, shortest);   
+            if(shortest != initialShortest){
+                if(this->processes[idx].executionTime > 0){
+                    this->processes[idx].start = time;
+                    time += this->processes[idx].executionTime;
+                    this->processes[idx].completion = time;
+                    this->processes[idx].completedIndex = idx + 1;
+                    this->processes[idx].executionTime = 0;
+                    order = order + "P" + to_string(this->processes[idx].completedIndex) + "->";
+                }
+            } else {
+                time++;
+            }
+            if(isCompleted()){
+                break;
+            } 
+        }
+        
+        calculateTAT();
         cout << *this;
         getAverageTAT();
+        cout << "Order: " << order << endl;
         resetMemory();
     }
 
     void FCFS(){
+        cout << endl;
+        cout << setw(20) << "First Come First Serve" << endl;
         int time = 0;
         int i = 0;
+        string order = "";
         while(i < this->processCount){
             if(this->processes[i].arrivalTime <= time){
                 this->processes[i].start = time;
                 time += this->processes[i].executionTime;
                 this->processes[i].completion = time;
                 this->processes[i].tat = this->processes[i].completion - this->processes[i].arrivalTime;
+                this->processes[i].completedIndex = i + 1;
+                this->processes[i].executionTime = 0;
+                order = order + "P" + to_string(this->processes[i].completedIndex) + "->";
                 i++;
             }
             else{
@@ -223,6 +281,7 @@ public:
         }
         cout << *this;
         getAverageTAT();
+        cout << "Order: " << order << endl;
         resetMemory();
     }
 };
