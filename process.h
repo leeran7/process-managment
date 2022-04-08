@@ -37,6 +37,7 @@ public:
         this->tat = 0;
         this->completion = 0;
         this->completedIndex = 0;
+        this->start = -1;
     }
     Process operator=(const Process& p){
         this->priority = p.priority;
@@ -130,17 +131,7 @@ public:
         }
         cout << "Average TAT: " << totalTAT / (double)this->processCount << endl;
     }
-
-    int getHighestPriority(int idx){
-        int highest = 9999999;
-        for(int i = 0; i < idx; i++){
-            if(this->processes[i].priority <= highest && this->processes[i].completedIndex == 0){
-                highest = this->processes[i].priority;
-            }
-        }
-        return highest;
-    }
-
+    
     void getReadyProcesses(int currentTime, int& count, int& highest){
         count = 0;
         highest = 999;
@@ -168,26 +159,6 @@ public:
     void calculateTAT(){
         for(int i = 0; i < this->processCount; i++){
             this->processes[i].tat = this->processes[i].completion - this->processes[i].arrivalTime;
-        }
-    }
-
-    Process getProcessByPid(int pid){
-        for(int i = 0; i < this->processCount; i++){
-            if(this->processes[i].pid == pid){
-                return this->processes[i];
-            }
-        }
-    }
-
-    void sortByPriority(){
-        for(int i = 0; i < this->processCount; i++){
-            for(int j = 0; j < this->processCount; j++){
-                if(this->processes[j].priority < this->processes[i].priority){
-                    Process temp = this->processes[i];
-                    this->processes[i] = this->processes[j];
-                    this->processes[j] = temp;
-                }
-            }
         }
     }
 
@@ -229,46 +200,10 @@ public:
         resetMemory();
     }
 
-    void sortByArrival(){
-        for(int i = 0; i < processCount; i++){
-            for(int j = 0; j < processCount - 1; j++){
-                if(processes[j].arrivalTime > processes[j + 1].arrivalTime){
-                    Process temp = processes[j];
-                    processes[j] = processes[j + 1];
-                    processes[j + 1] = temp;
-                }
-            }
-        }
-    }
-
-    void sortByExecution(){
-        for(int i = 0; i < processCount; i++){
-            for(int j = 0; j < processCount - 1; j++){
-                if(processes[j].executionTime > processes[j + 1].executionTime){
-                    Process temp = processes[j];
-                    processes[j] = processes[j + 1];
-                    processes[j + 1] = temp;
-                }
-            }
-        }
-    }
-
     void SJN(){
         cout << *this;
         getAverageTAT();
         resetMemory();
-    }
-
-    void sortByCompletion(){
-        for(int i = 0; i < processCount; i++){
-            for(int j = 0; j < processCount - 1; j++){
-                if(processes[j].completion > processes[j + 1].completion){
-                    Process temp = processes[j];
-                    processes[j] = processes[j + 1];
-                    processes[j + 1] = temp;
-                }
-            }
-        }
     }
 
     void FCFS(){

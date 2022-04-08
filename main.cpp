@@ -16,7 +16,7 @@ int main(int argc, const char * argv[]) {
         errorMsg = "Process count must be greater than 0...";
     }
     Manager* manager = new Manager(processCount);
-    // manager->FCFS();
+    manager->FCFS();
     manager->Priority();
     // manager->SJN();
     return 0;
