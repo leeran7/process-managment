@@ -122,6 +122,7 @@ public:
         return cout;
     }
     void resetMemory(){
+        sortByPid();
         for(int i = 0; i < this->processCount; i++){
             this->processes[i].reset();
         }
@@ -176,6 +177,30 @@ public:
         }
     }
 
+    void sortByStart(){
+        for(int i = 0; i < this->processCount; i++){
+            for(int j = 0; j < this->processCount; j++){
+                if(this->processes[i].start < this->processes[j].start){
+                    Process temp = this->processes[i];
+                    this->processes[i] = this->processes[j];
+                    this->processes[j] = temp;
+                }
+            }
+        }
+    }
+
+    void sortByPid(){
+        for(int i = 0; i < this->processCount; i++){
+            for(int j = 0; j < this->processCount; j++){
+                if(this->processes[i].pid < this->processes[j].pid){
+                    Process temp = this->processes[i];
+                    this->processes[i] = this->processes[j];
+                    this->processes[j] = temp;
+                }
+            }
+        }
+    }
+
     void Priority(){
         cout << endl;
         cout << setw(20) << "Priority Scheduling" << endl;
@@ -217,6 +242,7 @@ public:
             }
         }
         calculateTAT();
+        sortByStart();
         cout << *this;
         getAverageTAT();
         cout << "Order: " << order << endl;
@@ -252,6 +278,7 @@ public:
         }
         
         calculateTAT();
+        sortByStart();
         cout << *this;
         getAverageTAT();
         cout << "Order: " << order << endl;
